@@ -10,6 +10,9 @@ class MainActivity : AppCompatActivity() {
 
         setContent{
 
+            // setup simple connection screen
+            // setup simple call screen
+            // set up signaling client
         }
     }
 }
