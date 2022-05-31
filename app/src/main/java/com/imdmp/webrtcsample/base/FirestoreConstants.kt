@@ -1,4 +1,4 @@
-package com.imdmp.webrtcsample
+package com.imdmp.webrtcsample.base
 
 class FirestoreConstants {
     companion object {

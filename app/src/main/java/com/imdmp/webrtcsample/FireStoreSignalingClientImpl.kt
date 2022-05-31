@@ -1,12 +1,11 @@
-package com.imdmp.webrtcsample.firebaseimpl
+package com.imdmp.webrtcsample
 
-import com.imdmp.webrtcsample.SignalingClient
 import org.webrtc.IceCandidate
 import org.webrtc.SessionDescription
 
-class SignalingClientFirebaseImpl : SignalingClient {
+class FireStoreSignalingClientImpl : SignalingClient {
     override fun sendSdpOffer(sdpOffer: SessionDescription) {
-
+        TODO("Not yet implemented")
     }
 
     override fun sendSdpAnswer(sdpAnswer: SessionDescription) {

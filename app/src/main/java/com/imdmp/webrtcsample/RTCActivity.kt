@@ -6,9 +6,11 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.ui.viewinterop.AndroidView
+import org.webrtc.AudioTrack
 import org.webrtc.SurfaceViewRenderer
+import org.webrtc.VideoTrack
 
-class RTCActivity : AppCompatActivity() {
+class RTCActivity : AppCompatActivity(),PeerConnectionCallbacks {
 
     interface RTCViewListener {
         fun localFinishedRendering(surfaceViewRenderer: SurfaceViewRenderer)
@@ -19,7 +21,7 @@ class RTCActivity : AppCompatActivity() {
     lateinit var rtcListener: RTCViewListener
     lateinit var localViewRender: SurfaceViewRenderer
     lateinit var remoteViewRenderer: SurfaceViewRenderer
-
+    var audioTrack: AudioTrack? = null
 
     companion object {
         const val ROLE_KEY = "role_key"
@@ -43,8 +45,20 @@ class RTCActivity : AppCompatActivity() {
                 override fun remoteFinishedRendering(surfaceViewRenderer: SurfaceViewRenderer) {
                     remoteViewRenderer = surfaceViewRenderer
                 }
-
             })
         }
     }
+
+    override fun displayVideoTrack(videoTrack: VideoTrack?) {
+        videoTrack?.addSink(remoteViewRenderer)
+    }
+
+    override fun onAudioTrackAvailable(audioTrack: AudioTrack) {
+        this.audioTrack = audioTrack
+    }
+
+    fun muteAudioTrack() {
+        audioTrack?.setEnabled(false)
+    }
+
 }
