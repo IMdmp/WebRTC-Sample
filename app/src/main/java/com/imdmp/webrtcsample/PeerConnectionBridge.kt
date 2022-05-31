@@ -3,6 +3,7 @@ package com.imdmp.webrtcsample
 import android.content.Context
 import org.webrtc.*
 import org.webrtc.PeerConnection.RTCConfiguration
+import timber.log.Timber
 
 interface PeerConnectionCallbacks{
     fun displayVideoTrack(videoTrack: VideoTrack?)
@@ -135,52 +136,55 @@ class PeerConnectionBridge(
 
 interface CustomObserver : PeerConnection.Observer {
     override fun onSignalingChange(p0: PeerConnection.SignalingState?) {
-        TODO("Not yet implemented")
+        Timber.d("signaling change")
     }
     override fun onIceConnectionChange(p0: PeerConnection.IceConnectionState?) {
-        TODO("Not yet implemented")
+        Timber.d("on ice connection chnage")
     }
 
     override fun onIceConnectionReceivingChange(p0: Boolean) {
-        TODO("Not yet implemented")
+        Timber.d("on ice connection receiving change")
+
     }
 
     override fun onIceGatheringChange(p0: PeerConnection.IceGatheringState?) {
-        TODO("Not yet implemented")
+        Timber.d("on ice gathering change")
     }
 
     override fun onIceCandidatesRemoved(p0: Array<out IceCandidate>?) {
-        TODO("Not yet implemented")
+        Timber.d("on ice candidates removed")
     }
 
     override fun onAddStream(p0: MediaStream?) {
-        TODO("Not yet implemented")
+        Timber.d("on add stream")
     }
 
     override fun onRemoveStream(p0: MediaStream?) {
-        TODO("Not yet implemented")
+        Timber.d("on remove stream")
     }
 
     override fun onDataChannel(p0: DataChannel?) {
-        TODO("Not yet implemented")
+        Timber.d("on data channel")
     }
 
     override fun onRenegotiationNeeded() {
-        TODO("Not yet implemented")
+        Timber.d("on renegotiation needed")
     }
 }
 
 interface CustomSdpObserver : SdpObserver {
     override fun onSetSuccess() {
-        TODO("Not yet implemented")
+        Timber.d("on set succces")
+
     }
 
     override fun onCreateFailure(p0: String?) {
-        TODO("Not yet implemented")
+        Timber.d("on create failure")
     }
 
     override fun onSetFailure(p0: String?) {
-        TODO("Not yet implemented")
+        Timber.d("on set failure")
+
     }
 
 }
