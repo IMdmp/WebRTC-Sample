@@ -16,14 +16,11 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.google.android.material.textfield.TextInputEditText
-import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import timber.log.Timber
@@ -36,15 +33,22 @@ private const val CAMERA_AUDIO_PERMISSION_REQUEST_CODE = 1
 class MainActivity : AppCompatActivity() {
 
     enum class Role : Serializable {
-        HOST,
-        CALLER
+        OFFER,
+        ANSWER;
+
+        fun getStr(): String {
+            return when (this) {
+                OFFER -> "offerCandidate"
+                ANSWER -> "answerCandidate"
+            }
+        }
     }
 
+    var meetingId = mutableStateOf("")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val meetingIdText = remember { mutableStateOf("") }
             // setup simple connection screen
             // ask for meeting id.
             // if meeting id is not used, begin:
@@ -75,16 +79,16 @@ class MainActivity : AppCompatActivity() {
                     fontWeight = FontWeight.Bold
                 )
 
-                TextField(value = meetingIdText.value, onValueChange = { meetingIdText.value = it })
+                TextField(value = meetingId.value, onValueChange = { meetingId.value = it })
 
                 Button({
-                    startRtcActivity(Role.HOST)
+                    startRtcActivity(Role.OFFER)
                 }) {
                     Text(text = "Create Meeting")
                 }
 
                 Button({
-                    startRtcActivity(Role.CALLER)
+                    startRtcActivity(Role.ANSWER)
                 }) {
                     Text(text = "Join Meeting")
                 }
@@ -96,8 +100,9 @@ class MainActivity : AppCompatActivity() {
     private fun requestPermissionsForDevice() {
         if ((ContextCompat.checkSelfPermission(this, CAMERA_PERMISSION)
                     != PackageManager.PERMISSION_GRANTED) &&
-            (ContextCompat.checkSelfPermission(this,AUDIO_PERMISSION)
-                    != PackageManager.PERMISSION_GRANTED)) {
+            (ContextCompat.checkSelfPermission(this, AUDIO_PERMISSION)
+                    != PackageManager.PERMISSION_GRANTED)
+        ) {
             requestCameraAndAudioPermission()
         }
     }
@@ -105,10 +110,15 @@ class MainActivity : AppCompatActivity() {
     private fun requestCameraAndAudioPermission(dialogShown: Boolean = false) {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, CAMERA_PERMISSION) &&
             ActivityCompat.shouldShowRequestPermissionRationale(this, AUDIO_PERMISSION) &&
-            !dialogShown) {
+            !dialogShown
+        ) {
             showPermissionRationaleDialog()
         } else {
-            ActivityCompat.requestPermissions(this, arrayOf(CAMERA_PERMISSION, AUDIO_PERMISSION), CAMERA_AUDIO_PERMISSION_REQUEST_CODE)
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(CAMERA_PERMISSION, AUDIO_PERMISSION),
+                CAMERA_AUDIO_PERMISSION_REQUEST_CODE
+            )
         }
     }
 
@@ -133,7 +143,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startRtcActivity(role: Role) {
-        val i = RTCActivity.createIntent(this, role)
+        val i = RTCActivity.createIntent(this, role, meetingId.value)
         startActivity(i)
     }
 

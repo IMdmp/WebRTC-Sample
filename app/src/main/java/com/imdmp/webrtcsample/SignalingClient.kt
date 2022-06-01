@@ -4,8 +4,10 @@ import org.webrtc.IceCandidate
 import org.webrtc.SessionDescription
 
 interface SignalingClient {
-
-    fun sendSdpOffer(sdpOffer:SessionDescription)
-    fun sendSdpAnswer(sdpAnswer: SessionDescription)
-    fun sendIceCandidate(candidate: IceCandidate)
+    fun connectAndListen(meetingID: String)
+    fun sendSdpOffer(sdpOffer: SessionDescription,meetingID: String)
+    fun sendSdpAnswer(sdpAnswer: SessionDescription,meetingID: String)
+    fun sendIceCandidate(
+        candidate: IceCandidate, role: MainActivity.Role, meetingID: String
+    )
 }

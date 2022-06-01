@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.AngleDown
@@ -23,13 +24,12 @@ import org.webrtc.VideoTrack
 @Composable
 fun RTCScreen(rtcListener: RTCActivity.RTCViewListener) {
     ConstraintLayout {
-        val (remoteView, localView) = createRefs()
+        val (remoteView, localView,controls) = createRefs()
 
         AndroidView(
             modifier = Modifier
                 .fillMaxSize()
                 .constrainAs(localView) {
-
                 },
             factory = { context ->
                 SurfaceViewRenderer(context).apply {
@@ -52,7 +52,12 @@ fun RTCScreen(rtcListener: RTCActivity.RTCViewListener) {
                 }
             })
 
-        Row {
+        Row(modifier =  Modifier.constrainAs(controls){
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+            bottom.linkTo(parent.bottom)
+            width = Dimension.fillToConstraints
+        }) {
             //mic
             //vid
             //end

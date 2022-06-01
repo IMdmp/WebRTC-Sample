@@ -1,11 +1,12 @@
 package com.imdmp.webrtcsample
 
+import android.app.Application
 import org.webrtc.DefaultVideoDecoderFactory
 import org.webrtc.DefaultVideoEncoderFactory
 import org.webrtc.EglBase
 import org.webrtc.PeerConnectionFactory
 
-class RTCModule {
+object RTCModule {
 
 
     private fun provideRootEglBase(): EglBase {
@@ -13,8 +14,9 @@ class RTCModule {
 
     }
 
-    private fun buildPeerConnectionFactory(): PeerConnectionFactory {
+    fun buildPeerConnectionFactory(application:Application): PeerConnectionFactory {
         val eglBase = provideRootEglBase()
+        initPeerConnectionFactory(application)
         return PeerConnectionFactory
             .builder()
             .setVideoDecoderFactory(DefaultVideoDecoderFactory(eglBase.eglBaseContext))
@@ -30,6 +32,18 @@ class RTCModule {
                 disableNetworkMonitor = true
             })
             .createPeerConnectionFactory()
+    }
+
+    private fun initPeerConnectionFactory(context: Application) {
+        val options = PeerConnectionFactory.InitializationOptions.builder(context)
+            .setEnableInternalTracer(true)
+            .setFieldTrials("WebRTC-H264HighProfile/Enabled/")
+            .createInitializationOptions()
+        PeerConnectionFactory.initialize(options)
+    }
+
+    fun provideSignalingClient(signalingClientListener: SignalingClientListener): SignalingClient{
+        return FireStoreSignalingClientImpl(signalingClientListener)
     }
 
 }

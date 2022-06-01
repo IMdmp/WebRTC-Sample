@@ -5,7 +5,7 @@ import org.webrtc.*
 import org.webrtc.PeerConnection.RTCConfiguration
 import timber.log.Timber
 
-interface PeerConnectionCallbacks{
+interface PeerConnectionCallbacks {
     fun displayVideoTrack(videoTrack: VideoTrack?)
     fun onAudioTrackAvailable(audioTrack: AudioTrack)
 }
@@ -18,19 +18,28 @@ class PeerConnectionBridge(
     lateinit var peerConnection: PeerConnection
     lateinit var capturer: CameraVideoCapturer
 
-    var customSdpObserver = object : CustomSdpObserver {
+    var sendSdpCustomObserver = object : CustomSdpObserver {
         override fun onCreateSuccess(sdpOffer: SessionDescription) {
         }
     }
+    var answerSdpCustomObserver = object : CustomSdpObserver {
+        override fun onCreateSuccess(p0: SessionDescription?) {
+            TODO("Not yet implemented")
+        }
+    }
 
-    fun createPeerConnection(iceServers: List<PeerConnection.IceServer>) {
+    fun createPeerConnection(
+        iceServers: List<PeerConnection.IceServer>,
+        meetingId: String,
+        role: MainActivity.Role
+    ) {
         val rtcConfig = RTCConfiguration(iceServers)
 
         peerConnection = peerConnectionFactory.createPeerConnection(
             rtcConfig,
             object : CustomObserver {
                 override fun onIceCandidate(iceCandidate: IceCandidate) {
-                    signalingClient.sendIceCandidate(iceCandidate)
+                    signalingClient.sendIceCandidate(iceCandidate, role, meetingId)
                 }
 
                 override fun onAddTrack(p0: RtpReceiver?, mediaStreams: Array<out MediaStream>) {
@@ -49,39 +58,42 @@ class PeerConnectionBridge(
 
     }
 
-    fun sendSdpOffer() {
+    fun sendSdpOffer(meetingId: String) {
         peerConnection.createOffer(
             object : CustomSdpObserver {
                 override fun onCreateSuccess(sdpOffer: SessionDescription) {
-                    peerConnection.setLocalDescription(customSdpObserver, sdpOffer)
-                    signalingClient.sendSdpOffer(sdpOffer)
+                    peerConnection.setLocalDescription(sendSdpCustomObserver, sdpOffer)
+                    signalingClient.sendSdpOffer(sdpOffer, meetingId)
                 }
             }, MediaConstraints()
         )
     }
 
-    fun onSdpOfferReceive(sdpOffer: SessionDescription) {// Saving the received SDP-offer
-        peerConnection.setRemoteDescription(customSdpObserver, sdpOffer)
-        sendSdpAnswer()
+    fun onSdpOfferReceive(
+        sdpOffer: SessionDescription,
+        meetingId: String
+    ) {// Saving the received SDP-offer
+        peerConnection.setRemoteDescription(answerSdpCustomObserver, sdpOffer)
+        sendSdpAnswer(meetingId)
     }
 
     // Forming and sending SDP-answer
 
-    fun sendSdpAnswer() {
+    fun sendSdpAnswer(meetingId: String) {
         peerConnection.createAnswer(
             object : CustomSdpObserver {
                 override fun onCreateSuccess(sdpOffer: SessionDescription) {
-                    peerConnection.setLocalDescription(customSdpObserver, sdpOffer)
-                    signalingClient.sendSdpAnswer(sdpOffer)
+                    peerConnection.setLocalDescription(sendSdpCustomObserver, sdpOffer)
+                    signalingClient.sendSdpAnswer(sdpOffer, meetingId)
                 }
 
             }, MediaConstraints()
         )
     }
 
-    fun onSdpAnswerReceive(sdpAnswer: SessionDescription) {
-        peerConnection.setRemoteDescription(customSdpObserver, sdpAnswer)
-        sendSdpAnswer()
+    fun onSdpAnswerReceive(sdpAnswer: SessionDescription,meetingId: String) {
+        peerConnection.setRemoteDescription(sendSdpCustomObserver, sdpAnswer)
+        sendSdpAnswer(meetingId)
     }
 
     fun onIceCandidateReceive(iceCandidate: IceCandidate) {
@@ -135,6 +147,7 @@ interface CustomObserver : PeerConnection.Observer {
     override fun onSignalingChange(p0: PeerConnection.SignalingState?) {
         Timber.d("signaling change")
     }
+
     override fun onIceConnectionChange(p0: PeerConnection.IceConnectionState?) {
         Timber.d("on ice connection chnage")
     }
