@@ -117,11 +117,8 @@ class PeerConnectionBridge(
         capturer = cameraEnumerator.createCapturer(camera, null)
 
         val surfaceTextureHelper = SurfaceTextureHelper.create(
-
             "CaptureThread",
-
             EglBase.create().eglBaseContext
-
         )
 
         val videoSource =

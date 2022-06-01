@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.imdmp.webrtcsample">
-
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
     <application
         android:name=".base.CustomApp"
         android:allowBackup="true"
@@ -12,6 +15,7 @@
         android:theme="@style/Theme.WebRTCSample">
         <activity
             android:name=".RTCActivity"
+            android:launchMode="singleTask"
             android:exported="true" />
         <activity
             android:name=".MainActivity"
