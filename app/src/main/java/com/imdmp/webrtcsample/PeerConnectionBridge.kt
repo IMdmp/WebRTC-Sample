@@ -22,10 +22,48 @@ class PeerConnectionBridge(
         override fun onCreateSuccess(sdpOffer: SessionDescription) {
         }
     }
+
+    var setLocalSdpObserver  = object :SdpObserver{
+        override fun onCreateSuccess(p0: SessionDescription?) {
+            Timber.d("loca oncreate succses")
+        }
+
+        override fun onSetSuccess() {
+            Timber.d("local set success")
+        }
+
+        override fun onCreateFailure(p0: String?) {
+           Timber.d("local create failure")
+        }
+
+        override fun onSetFailure(p0: String?) {
+           Timber.d("local set failure ")
+        }
+
+    }
     var answerSdpCustomObserver = object : CustomSdpObserver {
         override fun onCreateSuccess(p0: SessionDescription?) {
             TODO("Not yet implemented")
         }
+    }
+
+    var remoteSetupSdpObserver = object : SdpObserver{
+        override fun onCreateSuccess(p0: SessionDescription?) {
+            Timber.d("succesfully created remote.")
+        }
+
+        override fun onSetSuccess() {
+            Timber.d("successfully set remote.")
+        }
+
+        override fun onCreateFailure(p0: String?) {
+           Timber.d("failed creating remote.")
+        }
+
+        override fun onSetFailure(p0: String?) {
+            Timber.d("failed setting remote.")
+        }
+
     }
 
     fun createPeerConnection(
@@ -39,6 +77,7 @@ class PeerConnectionBridge(
             rtcConfig,
             object : CustomObserver {
                 override fun onIceCandidate(iceCandidate: IceCandidate) {
+                    Timber.d("on ice candidate.")
                     signalingClient.sendIceCandidate(iceCandidate, role, meetingId)
                 }
 
@@ -62,7 +101,7 @@ class PeerConnectionBridge(
         peerConnection.createOffer(
             object : CustomSdpObserver {
                 override fun onCreateSuccess(sdpOffer: SessionDescription) {
-                    peerConnection.setLocalDescription(sendSdpCustomObserver, sdpOffer)
+                    peerConnection.setLocalDescription(setLocalSdpObserver, sdpOffer)
                     signalingClient.sendSdpOffer(sdpOffer, meetingId)
                 }
             }, MediaConstraints()
@@ -73,7 +112,7 @@ class PeerConnectionBridge(
         sdpOffer: SessionDescription,
         meetingId: String
     ) {// Saving the received SDP-offer
-        peerConnection.setRemoteDescription(answerSdpCustomObserver, sdpOffer)
+        peerConnection.setRemoteDescription(remoteSetupSdpObserver, sdpOffer)
         sendSdpAnswer(meetingId)
     }
 
@@ -92,6 +131,7 @@ class PeerConnectionBridge(
     }
 
     fun onSdpAnswerReceive(sdpAnswer: SessionDescription,meetingId: String) {
+        Timber.d("on sdp answer receive")
         peerConnection.setRemoteDescription(sendSdpCustomObserver, sdpAnswer)
         sendSdpAnswer(meetingId)
     }
